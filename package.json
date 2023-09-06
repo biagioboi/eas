@@ -1,0 +1,17 @@
+{
+  "name": "eas",
+  "version": "1.0.0",
+  "main": "create_schema.mjs",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@ethereum-attestation-service/eas-sdk": "0.29.1",
+    "config": "^3.3.9",
+    "ethers": "5.7.1"
+  },
+  "scripts": {
+    "create_schema": "node create_schema.mjs",
+    "create_attestation": "node create_attestation.mjs",
+    "schema_information": "node get_schema_information.mjs"
+  }
+}
