@@ -1,5 +1,5 @@
 import config from "config";
-import { EAS, SchemaEncoder } from "@ethereum-attestation-service/eas-sdk";
+import {EAS, SchemaEncoder} from "@ethereum-attestation-service/eas-sdk";
 import {ethers} from "ethers";
 
 /** Definition **/
@@ -13,25 +13,45 @@ const signer = new ethers.Wallet(config.get('wallet.privateKey'), provider);
 
 /** Let's connect **/
 eas.connect(signer);
+let total = 0;
+let times = [];
+for (let i = 0; i < 10; i++) {
+    console.log(i);
+    let start = performance.now()
+    /** Initialize SchemaEncoder with the schema string **/
+    const schemaEncoder = new SchemaEncoder("bytes32 publicKeyLeft, bytes32 publicKeyRight");
+    const encodedData = schemaEncoder.encodeData([
+        {
+            name: "publicKeyLeft",
+            value: "0x4DA24C8ACB3000B1EF5E469DB6B18571344D23CF84D8F0BE374903104FCA383E",
+            type: "bytes32"
+        },
+        {
+            name: "publicKeyRight",
+            value: "0x2AB4FEEB190D9CE3CAE0E7FD6EEA3C21D366839724850AFD34DAB19DB198EAB4",
+            type: "bytes32"
+        }
+    ]);
 
-/** Initialize SchemaEncoder with the schema string **/
-const schemaEncoder = new SchemaEncoder("uint256 keyIdentifier");
-const encodedData = schemaEncoder.encodeData([
-    { name: "keyIdentifier", value: 13432, type: "uint256" },
-]);
+    const schemaUID = "0xF5524E651B1B642995A647D02766657F47A08035B3CE7626C9BCBB652CA8E0EF";
 
-const schemaUID = "0x66d2b264cf5e3be442a782bbc97913ce6fd6ba10a39a1365a178df9e466006e8";
+    const tx = await eas.attest({
+        schema: schemaUID,
+        data: {
+            recipient: config.get('wallet.address'),
+            expirationTime: 498249832948,
+            revocable: true, // Be aware that if your schema is not revocable, this MUST be false
+            data: encodedData,
+        },
+    });
 
-const tx = await eas.attest({
-    schema: schemaUID,
-    data: {
-        recipient: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0" ,
-        expirationTime: 0,
-        revocable: true, // Be aware that if your schema is not revocable, this MUST be false
-        data: encodedData,
-    },
-});
+    const newAttestationUID = await tx.wait();
+    var diff = performance.now() - start;
+    times.push((diff).toFixed(10));
+    console.log("New attestation UID:", newAttestationUID);
+}
 
-const newAttestationUID = await tx.wait();
 
-console.log("New attestation UID:", newAttestationUID);
+var json = JSON.stringify(times);
+import * as fs from 'fs';
+fs.writeFile('results_create_attest_new_new.json', json, 'utf8', () => console.log("done"));

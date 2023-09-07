@@ -11,7 +11,7 @@ const schemaRegistryContractAddress = "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D
 const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress);
 schemaRegistry.connect(provider);
 
-const schemaUID = "0x66D2B264CF5E3BE442A782BBC97913CE6FD6BA10A39A1365A178DF9E466006E8";
+const schemaUID = "0x22CD9FBC082E65AC85C8E4A5682E6FFBE8DC1A4F3A0A1CB4C2FC94878B058F0D";
 
 const schemaRecord = await schemaRegistry.getSchema({ uid: schemaUID });
 
